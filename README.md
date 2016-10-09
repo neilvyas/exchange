@@ -45,7 +45,10 @@ Public Messages
     "type": "book",
     "timestamp": server_timestamp,
     "book": {
-      stock_name: [(price, quantity), ...],
+      stock_name: {
+        "bids": [(price, quantity), ...],
+        "asks": [(price, quantity), ...],
+      },
       ...
     }
   }
