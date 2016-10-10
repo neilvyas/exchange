@@ -9,17 +9,17 @@ import Orderbook
 (agent1, agent2, trader) = ("AGENT1", "AGENT2", "TRADER")
 bidsToUse = [ (49, 30, (agent1, 10))
             , (48, 20, (agent1, 20))
-            , (46, 30, (agent2, 10))
+            , (46, 30, (agent2, 30))
             ]
-bidsRemaining = [(43, 100, (agent1, 30))]
+bidsRemaining = [(43, 100, (agent1, 40))]
 
 bidOrderPage = bidsToUse ++ bidsRemaining
 
 asksToUse = [ (50, 30, (agent1, 1))
             , (50, 20, (agent1, 2))
-            , (51, 30, (agent2, 1))
+            , (51, 30, (agent2, 3))
             ]
-asksRemaining = [(53, 100, (agent2, 2))] 
+asksRemaining = [(53, 100, (agent2, 4))]
 
 askOrderPage = asksToUse ++ asksRemaining
 
@@ -42,15 +42,17 @@ sellCompletelyFilledTest = TestCase $ do
 
 buyIncompleteUsageTest = TestCase $ do
   let (filledOrders, resultOb) = handleOrder (Buy, (trader, 0), 51, 70) orderBook
-  let expectedResult = OrderBook bidsRemaining ((51, 30, (agent2, 1)) : asksRemaining)
+  let expectedResult = OrderBook bidOrderPage ((51, 10, (agent2, 3)) : asksRemaining)
+  let expectedFilled = (init asksToUse ++ [(51, 20, (agent2, 3))])
   assertEqual "the resulting orderbook," expectedResult resultOb
-  assertEqual "the orders filled" asksToUse filledOrders
+  assertEqual "the orders filled" expectedFilled filledOrders
 
 sellIncompleteUsageTest = TestCase $ do
   let (filledOrders, resultOb) = handleOrder (Sell, (trader, 0), 44, 70) orderBook
-  let expectedResult = OrderBook ((46, 10, (agent2, 10)) : bidsRemaining) asksRemaining
+  let expectedResult = OrderBook ((46, 10, (agent2, 30)) : bidsRemaining) askOrderPage
+  let expectedFilled = (init bidsToUse ++ [(46, 20, (agent2, 30))])
   assertEqual "the resulting orderbook," expectedResult resultOb
-  assertEqual "the orders filled" bidsToUse filledOrders
+  assertEqual "the orders filled" expectedFilled filledOrders
 
 buyWithListingTest = TestCase $ do
   let (filledOrders, resultOb) = handleOrder (Buy, (trader, 0), 51, 110) orderBook
